@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Apado Chat -- Create new Account</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="vendor/icons/css/material-design-iconic-font.min.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+    <style>
+      .error {
+        color: tomato;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen lg:overflow-hidden flex items-center justify-center"
+    style="background: #edf2f7"
+  >
+    <section
+      class="
+        flex
+        m-4
+        lg:m-0
+        w-full
+        flex-col
+        md:flex-row
+        h-auto
+        lg:min-h-screen
+        mb-4
+        items-center
+        lg:items-start
+      "
+    >
+      <div
+        class="
+          bg-indigo-600
+          hidden
+          lg:block
+          w-full
+          md:w-1/2
+          xl:w-2/3
+          lg:min-h-screen
+        "
+      >
+        <img
+          src="https://source.unsplash.com/random"
+          alt=""
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <div
+        class="
+          bg-white
+          lg:overflow-y-auto
+          w-full
+          md:max-w-md
+          lg:max-w-full
+          md:mx-auto md:mx-0 md:w-1/2
+          xl:w-1/3
+          lg:min-h-screen lg:max-h-screen
+          px-6
+          pb-6
+          lg:pt-20 lg:px-16
+          xl:px-12
+          flex
+          h-full
+          items-center
+          justify-center
+        "
+      >
+        <div class="w-full h-full">
+          <h1 class="text-xl md:text-2xl font-bold leading-tight mt-12">
+            Create an Account
+          </h1>
+
+          <form
+            class="mt-6"
+            id="registerForm"
+            action="/api/v1/register"
+            method="POST"
+          >
+            <div
+              class="
+                errorMain
+                hidden
+                mb-2
+                p-3
+                bg-red-100
+                rounded
+                w-full
+                flex
+                items-start
+                justify-start
+              "
+            >
+              <span class="croxx text-red-400 pr-3">
+                <i class="zmdi zmdi-alert-circle-o" style="font-size: 32px"></i>
+              </span>
+              <div>
+                <h3 class="text-red-400 font-semibold">Error</h3>
+                <p class="text-red-300">Something went wrong.</p>
+              </div>
+            </div>
+
+            <div
+              class="
+                successMain
+                hidden
+                mb-2
+                p-3
+                bg-green-50
+                rounded
+                w-full
+                flex
+                items-start
+                justify-start
+              "
+            >
+              <span class="croxx text-green-400 pr-3">
+                <i class="zmdi zmdi-check-circle" style="font-size: 32px"></i>
+              </span>
+              <div>
+                <h3 class="text-green-400 font-semibold">Successful</h3>
+                <p class="text-green-300">Success.</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Email Address</label>
+              <input
+                type="email"
+                name="email"
+                id=""
+                placeholder="Enter Email Address"
+                class="
+                  w-full
+                  px-4
+                  py-3
+                  rounded-lg
+                  bg-gray-200
+                  mt-2
+                  border
+                  focus:border-blue-500 focus:bg-white focus:outline-none
+                "
+                autofocus
+                autocomplete
+                required
+              />
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-gray-700">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                id="sdx"
+                placeholder="Enter Full Name"
+                minlength="6"
+                class="
+                  w-full
+                  px-4
+                  py-3
+                  rounded-lg
+                  bg-gray-200
+                  mt-2
+                  border
+                  focus:border-blue-500 focus:bg-white focus:outline-none
+                "
+                required
+              />
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-gray-700">Password</label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter Password"
+                minlength="6"
+                class="
+                  w-full
+                  px-4
+                  py-3
+                  rounded-lg
+                  bg-gray-200
+                  mt-2
+                  border
+                  focus:border-blue-500 focus:bg-white focus:outline-none
+                "
+                required
+              />
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-gray-700">Confirm Password</label>
+              <input
+                type="password"
+                name="confirm_password"
+                id="sdc"
+                placeholder="Repeat Password"
+                minlength="6"
+                class="
+                  w-full
+                  px-4
+                  py-3
+                  rounded-lg
+                  bg-gray-200
+                  mt-2
+                  border
+                  focus:border-blue-500 focus:bg-white focus:outline-none
+                "
+                required
+              />
+            </div>
+
+            <div class="text-right mt-2">
+              <a
+                href="/forgetpassword"
+                class="
+                  text-sm
+                  font-semibold
+                  text-gray-700
+                  hover:text-blue-700
+                  focus:text-blue-700
+                "
+                >Forgot Password?</a
+              >
+            </div>
+
+            <button
+              type="submit"
+              class="
+                subm
+                w-full
+                block
+                bg-indigo-500
+                hover:bg-indigo-400
+                focus:bg-indigo-400
+                text-white
+                font-semibold
+                rounded-lg
+                px-4
+                py-3
+                mt-6
+              "
+            >
+              Sign up
+            </button>
+          </form>
+
+          <hr class="my-6 border-gray-300 w-full" />
+
+          <p class="mt-8">
+            Have an account?
+            <a href="/" class="text-blue-500 hover:text-blue-700 font-semibold"
+              >Login here</a
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+    <script src="/js/jquery.js"></script>
+    <script src="/vendor/jquery-validation-1.19.3/dist/jquery.validate.min.js"></script>
+    <script>
+      var csrf_token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+      $("#registerForm").validate({
+        rules: {
+          email: {
+            required: true,
+            email: true,
+          },
+          password: {
+            required: true,
+            minlength: 6,
+          },
+          name: {
+            required: true,
+            minlength: 6,
+          },
+          confirm_password: {
+            required: true,
+            minlength: 6,
+            equalTo: "#password",
+          },
+        },
+        messages: {
+          email: {
+            required: "please enter email.",
+            email: "enter a valid email.",
+          },
+          name: {
+            required: "please enter your name.",
+            minlength: "name should be greater then 6 chars.",
+          },
+          password: {
+            required: "password is required.",
+            minlength: "password must be greater then 6 chars.",
+          },
+          confirm_password: {
+            required: "confirm password is required.",
+            minlength: "confirm password must be greater then 6 chars.",
+            equalTo: "confirm password must match password field.",
+          },
+        },
+        submitHandler: function (form, event) {
+          event.preventDefault();
+          let data = $("#registerForm").serialize();
+          $.ajax({
+            url: "/api/v1/register",
+            headers: { Accept: "application/json", "CSRF-Token": csrf_token },
+            method: "POST",
+            data: data,
+            beforeSend: function () {
+              $(".subm").text("Processing...").attr("disabled", true);
+            },
+            success: function (res) {
+              $(".subm").text("Sign up").attr("disabled", false);
+              if (res.success == true) {
+                $("#registerForm").trigger("reset");
+                $(".successMain").removeClass("hidden");
+                $(".successMain p").text(res.message);
+                $(".errorMain").addClass("hidden");
+              } else {
+                $(".successMain").addClass("hidden");
+                $(".errorMain").removeClass("hidden");
+                $(".errorMain p").text(res.message);
+              }
+            },
+            error: function (err) {
+              $(".subm").text("Sign up").attr("disabled", false);
+              $(".successMain").addClass("hidden");
+
+              $(".errorMain").removeClass("hidden");
+              if (err.responseJSON.message) {
+                $(".errorMain p").text(err.responseJSON.message);
+              } else {
+                $(".errorMain p").text("Email address already taken.");
+              }
+            },
+          });
+        },
+      });
+    </script>
+  </body>
+</html>

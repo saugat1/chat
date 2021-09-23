@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#5358e8" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search page Apado Chat</title>
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="vendor/icons/css/material-design-iconic-font.min.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+    <style>
+      * {
+        font-family: "Nunito", sans-serif;
+      }
+
+      .message_container .own {
+        max-width: 75%;
+        width: auto;
+        display: inline-block;
+        float: right;
+      }
+
+      .messages .other {
+        max-width: 75%;
+        width: auto;
+
+        float: left;
+      }
+
+      .breaker {
+        clear: both;
+      }
+
+      .conversations .active {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .message_container::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100" style="max-height: 100vh; overflow: hidden">
+    <!-- {{!-- nav bar first static --}} -->
+    <%- include('partials/nav', {u:user}); %>
+    <div class="w-full bg-indigo-500 h-48 relative rounded-br-full">.</div>
+    <div class="container -mt-40 mx-auto rounded m-3 max-w-5xl relative z-10">
+      <div class="card shadow-md mx-3 md:mx-0 bg-white rounded-lg p-3">
+        <div class="card-header border-b border-gray-100 text-gray-500">
+          <div
+            class="
+              flex
+              items-start
+              md:items-center md:flex-row
+              justify-between
+              flex-col
+            "
+          >
+            <div class="pb-4 flex items-center">
+              <span
+                onclick="window.location.href='/home'"
+                class="
+                  inline-block
+                  h-10
+                  w-10
+                  rounded-full
+                  hover:bg-indigo-100 hover:bg-opacity-75
+                  text-center
+                  cursor-pointer
+                "
+                style="line-height: 3rem"
+              >
+                <i
+                  class="zmdi zmdi-arrow-left text-gray-400"
+                  style="font-size: 25px"
+                ></i>
+              </span>
+              <h3 class="font-bold text-lg pl-4">
+                Search for : <span class="q text-indigo-500"> </span>
+              </h3>
+            </div>
+            <form action="" class="w-full md:w-auto relative" id="searchForm">
+              <span class="absolute left-4 top-3 md:top-2">
+                <i
+                  class="zmdi zmdi-search text-gray-400"
+                  style="font-size: 24px"
+                ></i>
+              </span>
+              <input
+                type="search"
+                name="search"
+                autofocus
+                id="searchInput"
+                autocomplete="off"
+                class="
+                  bg-gray-100
+                  rounded-full
+                  px-4
+                  pl-10
+                  py-3
+                  md:py-2
+                  outline-none
+                  border-none
+                  w-full
+                  md:w-auto
+                "
+                placeholder="user name..."
+              />
+            </form>
+          </div>
+          <div class="my-4 md:my-2">
+            <p class="text-gray-400">
+              Click on the user picture to start a conversation with that user.
+              :)
+            </p>
+          </div>
+        </div>
+
+        <div class="card-body py-2">
+          <style>
+            nav::-webkit-scrollbar {
+              display: none;
+            }
+          </style>
+          <nav
+            id="searchList"
+            style="height: calc(100vh - 135px); overflow-y: scroll"
+          ></nav>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/jquery.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+      $("#searchForm").on("submit", function (e) {
+        e.preventDefault();
+        let search_string = $("#searchInput").val().trim();
+        if (search_string.length < 1) {
+          return;
+        }
+        $(".q").text(search_string);
+
+        $.ajax({
+          url: "/search",
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "CSRF-Token": token, // <-- is the csrf token as a header
+          },
+          data: {
+            query: search_string,
+          },
+          beforeSend: function () {
+            $("#searchList")
+              .html(`    <div class="flex items-center justify-center my-5">
+              <div
+                class="
+                  h-8
+                  w-8
+                  rounded-full
+                  border-4 border-indigo-500
+                  bg-white
+                  m-5
+                  animate-spin
+                "
+                style="border-top-color: rgb(255, 255, 255)"
+              ></div>
+            </div>`);
+          },
+          success: function (res) {
+           
+            if (res.success == true) {
+              if (res.data.length > 0) {
+                let htm = ``;
+                res.data.forEach(function (item, ind) {
+                  htm += `
+                      <a
+              class="
+                block
+                px-4
+                py-3
+                mt-1
+                text-sm
+             border-b border-gray-100
+                font-semibold
+                text-gray-900
+                bg-transparent
+                dark-mode:bg-transparent
+                dark-mode:hover:bg-gray-600
+                dark-mode:focus:bg-gray-600
+                dark-mode:focus:text-white
+                dark-mode:hover:text-white
+                dark-mode:text-gray-200
+                hover:text-gray-900
+                focus:text-gray-900
+                hover:bg-gray-100
+                focus:bg-gray-100 focus:outline-none focus:shadow-outline
+              "
+              href="/home?r=${item._id}&t=${new Date().getTime()}&exp=120000"
+            >
+              <div class="flex items-center -space-x-1 overflow-hidden">
+                <div class="relative">
+                  <img
+                    class="
+                      inline-block
+                      h-12
+                      w-12
+                      min-w-12
+                      rounded-full
+                      ring-2 ring-white
+                    "
+                    src="${item.picture}"
+                    alt=""
+                  />
+                </div>
+                <div class="pl-4 flex flex-col flex-1">
+                  <div
+                    class="flex flex-row items-center justify-between w-full"
+                  >
+                    <h3 class="font-bold text-lg text-gray-400">
+                      ${item.name}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+            </a>`;
+                });
+                $("#searchList").html(htm);
+              } else {
+                $("#searchList").html(`
+                    <h2 class="py-5 text-gray-400 font-bold text-lg"> No users found </h2>
+                    `);
+              }
+            } else {
+              //return false;
+            }
+          },
+          error: function (err) {
+            $("#searchList").html(`
+                    <h2 class="py-5 text-gray-400 font-bold text-lg"> Err Searching... </h2>
+                    `);
+            alert("Error Searching..");
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

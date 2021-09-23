@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>yes</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <style>  
+    *{
+        font-family: "Nunito", sans-serif;
+    }
+    .messages .own{
+        max-width: 75%;
+        width: auto;
+        display:inline-block;
+        float: right;
+    }
+     .messages .other{
+        max-width: 75%;
+        width: auto;
+      
+        float: left;
+    }
+    .breaker{
+        clear:both;
+    }
+
+   .conversations .active {
+    background: rgba(0,0,0,0.1);
+    }
+
+    </style>
+  </head>
+  <body style="max-height: 100vh; overflow:hidden;">
+
+<!-- navbar --> 
+<div class="sticky shadow-md top-0 z-30 w-full bg-white-500">
+    <nav class=" mx-auto 2xl:container h-16 px-5  flex justify-between items-center">
+        <h3 class="font-bold text-xl text-gray cursor-pointer pl-5"> <i class="zmdi zmdi-library text-yellow-500"></i> Apado Chat </h3>
+        
+        <div class="menu">
+           <a href="" style="font-size: 25px;" class="text-gray-400 rounded py-2 px-12 hover:bg-gray-200 hover:bg-opacity-25 ml-5 inline-block relative "> 
+            <i class="zmdi zmdi-comments"></i>
+            <span class="absolute top-0.5 right-6 leading-5 h-5 w-5 bg-red-400 text-white rounded-full text-xs text-center "> 1 </span>
+        </a>
+        </div>
+        
+        <div  class="dropdown relative cursor-pointer pr-5"  @click.away="open = false" x-data="{open:false}" >
+           <div class="flex items-center p-2 hover:bg-gray-200 rounded-full hover:bg-opacity-50"  @click="open = !open">
+            <img class="block h-6 w-6 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">
+        
+            <div class="n pl-2 text-gray-600 font-semibold "> Preety </div>
+           </div>
+           <div   x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 w-40 mt-2 origin-top-right rounded-md shadow-lg">
+        
+            <div class="px-2 py-2 bg-white rounded-md shadow dark-mode:bg-gray-800">
+              <a  class="block px-4 py-2 mt-2  text-gray-800 text-left text-sm font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline" href="#">Log out</a>
+        
+        
+              <a class="block px-4 py-2 mt-2 text-gray-800 text-left  text-sm font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline" href="#">Settings</a>
+              
+            </div>
+          </div>
+        
+        
+        </div>
+        </nav>
+</div>
+    <!-- sidebar  -->
+<!-- component -->
+<div class="2xl:container mx-auto p-3 desktop" x-data="{emojiModel : false,  messageDiv : true}">  
+
+    <div x-show="emojiModel" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="emojiMode z-50 fixed top-0 left-0 right-0 bottom-0 p-3 w-full h-full" style="background: rgba(0,0,0,0.3)">
+      <div class="bg-white p-2  md:w-1/2 mx-auto rounded shadow">
+        <h5 class="text-gray-400  font-semibold my-3 text-lg ml-2">Click on Emojies to add </h5>
+        <div class="content rounded-lg  bg-white  mx-auto shadow p-2  min-h-1/2">
+            <div class="emoji"> 
+                
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💚</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤎</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💞</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">❣</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💓</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💘</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💌</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💤</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💤</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💌</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💘</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💗</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💕</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🖤</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🖤</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💓</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💤</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">💫</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">☮</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">✝</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚚</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚐</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🛺</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚙</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚎</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚎</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚚</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚚</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚘</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🚍</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😀</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤣</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😅</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😊</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😍</span>
+            😗<span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">☺</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤩</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😐</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🙄</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😥</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😯</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😪</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😮</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😮</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😏</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😑</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤔</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🙂</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😙</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😘</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😋</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😆</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😃</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😁</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😂</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😄</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😉</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😎</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🥰</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😚</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤗</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤨</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤨</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😶</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😣</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">🤐</span>
+            <span class="p-2 hover:bg-gray-100 inline-block mt-1 cursor-pointer rounded ">😫</span>
+            </div>
+        </div>
+        <div class="button-add-emoji p-2 py-3 rounded-lg  bg-white  mx-auto mt-3 flex ietms-center justify-end">
+            <button @click="emojiModel = !emojiModel" class="px-4 py-2 text-gray-400 bg-gray-50 rounded-lg hover:bg-gray-100">
+                Cancel 
+            </button>
+            <button onclick="document.getElementById('messageInput').focus()" @click="emojiModel = !emojiModel" class="px-4 ml-2 py-2 text-gray-400 bg-yellow-100 rounded-lg hover:bg-yellow-500 hover:text-white">
+                Ok 
+            </button>
+        </div>
+      </div>
+    </div>
+
+<div class="flex"> 
+<div class="sidebar-left flex-initial lg:w-1/4 ">
+<div class="md:flex flex-col md:flex-row md:min-h-screen w-full conversations">
+  <div @click.away="open = false" class="flex flex-col w-full  text-gray-700 bg-white dark-mode:text-gray-200 dark-mode:bg-gray-800 flex-shrink-0" x-data="{ open: false }">
+    <div class="flex-shrink-0 px-8 py-4 flex flex-row items-center justify-between">
+      <a href="javascript:void(0)" class="text-lg font-semibold tracking-widest text-gray-900 uppercase rounded-lg dark-mode:text-white focus:outline-none focus:shadow-outline">Conversations</a>
+      <button class="rounded-lg md:hidden rounded-lg focus:outline-none focus:shadow-outline" @click="open = !open">
+        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+          <path x-show="!open" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+          <path x-show="open" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+    <nav :class="{'block': open, 'hidden': !open}" class="flex-grow md:block px-4 pb-4 md:pb-0 md:overflow-y-auto">
+
+     <a onclick="changeActiveUser('123', 'some conversation id', this)" class="block px-4 py-3  text-sm font-semibold text-gray-900 bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline " href="#">
+        <div class="flex items-center -space-x-1 overflow-hidden">
+          <div class="relative">  
+          <img class="inline-block h-12 w-12 min-w-12 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">
+          <div class="absolute border-2 border-white h-4 w-4 bg-green-500 rounded-full " style="right: 0; bottom: 0;"> . </div> 
+          </div>
+          <div class="pl-3 flex flex-col ">
+            <div class="font-bold">Amrit Mgr</div>
+            <div class="text-gray-500 truncate"> Lorem ipsum dolor asldf lajf ... </div>
+          </div>
+          </div>
+        
+    
+    </a>
+
+     <a class="block px-4 py-3  text-sm font-semibold text-gray-900 bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline" href="#">
+        <div class="flex items-center -space-x-1 overflow-hidden">
+          <div class="relative">  
+          <img class="inline-block h-12 w-12 min-w-12 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">
+          <div class="absolute border-2 border-white h-4 w-4 bg-green-500 rounded-full " style="right: 0; bottom: 0;"> . </div> 
+          </div>
+          <div class="pl-3 flex flex-col ">
+            <div class="font-bold">Amrit Mgr</div>
+            <div class="text-gray-500"> some mese truncate ... </div>
+          </div>
+          </div>
+    </a>
+    
+    </nav>
+  </div>
+</div>
+</div>
+<div class="main flex-1 bg-white-300">
+
+    <div class="p-4 mt-3 text-center bg-gray-50 rounded-lg" x-show="!messageDiv">
+
+        <div class="my-5">
+            <img src="/images/chatting.svg" alt="none" class="max-h-40 text-center mx-auto">
+        </div>
+
+        <h2 class="font-bold text-xl text-gray-600"> Click on the User at right Users List or search users for new Conversation. </h2>
+
+        <p class="mt-3 text-gray-400"> Everything makes you perfect. chat unlimited time without any restications with anyone worldwide.  </p>
+    </div>
+
+ <div class="p-4 " x-show="messageDiv">
+        <div class="h-full bg-white bg-opacity-75  shadow pb-24 rounded-lg overflow-hidden text-center relative lg:max-h-screen" style="min-height: calc(100vh - 110px)">
+
+
+        <div class="bg-yellow-500 w-full h-16 m-head flex items-center px-4">
+            <div class="left flex-1 flex items-center">
+                <div class="avagat">
+                    <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white receiverImage" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">
+                </div>
+                <div class="u_info flex flex-col items-start pl-3">
+                    <p class="font-bold text-xl text-white receiverName"> Aramu Zhendra </p>
+                    <p class="text-sm text-gray-100 receiverActive">  Active Now </p>
+                </div>
+            </div>
+            <div class="right text-white flex relative items-center">
+                <div  @click.away="open = false"  x-data="{ open: false }">
+                    <button class=" h-8 w-8 rounded-full hover:bg-gray-50 hover:bg-opacity-25 "  @click="open = ! open"> 
+                    <i class=" zmdi zmdi-more-vert " style="font-size: 25px;"></i>    
+                    </button>
+               
+                    <div  x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 w-40 mt-2 origin-top-right rounded-md shadow-lg">
+
+                        <div class="px-2 py-2 bg-white rounded-md shadow dark-mode:bg-gray-800">
+                          <a class="block px-4 py-2 mt-2  text-gray-800 text-left text-sm font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline" href="#">View profile</a>
+
+
+                          <a class="block px-4 py-2 mt-2 text-gray-800 text-left  text-sm font-semibold bg-transparent rounded-lg dark-mode:bg-transparent dark-mode:hover:bg-gray-600 dark-mode:focus:bg-gray-600 dark-mode:focus:text-white dark-mode:hover:text-white dark-mode:text-gray-200 md:mt-0 hover:text-gray-900 focus:text-gray-900 hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:shadow-outline" href="#">Block</a>
+                          
+                        </div>
+                      </div>
+              
+                </div>
+                <div @click="messageDiv = !messageDiv" class="ml-1 h-8 w-8 rounded-full hover:bg-gray-50 hover:bg-opacity-25">
+                   <i class="zmdi zmdi-close h-6 w-6 cursor-pointer" style='font-size: 25px;'></i>
+                </div>
+            </div>
+        
+        </div>
+
+
+
+        <div class="bg-white w-full m-body max-h-full overflow-y-auto px-4 mt-2 message_container" > 
+            <div class="other  mt-1 max-w-1/2 flex flex-row justify-start">
+                <div>  <img class="inline-block h-4 w-4 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">  </div>  <div class="px-3 py-2 rounded-full bg-gray-200 ml-1" >  hello  </div>
+                             
+                              </div>
+        <div class="m_time flex items-center">
+        <div class="bg-gray-200 flex-1" style="height: 1px;"> </div>
+        <div class="t_m_get px-5 text-gray-300"> Today </div>
+        <div class="bg-gray-200 flex-1" style="height: 1px;"> </div>
+        </div>
+        <div class="messages mt-3"> 
+            <div class="own px-3 py-2 rounded-full mt-1 bg-yellow-100 max-w-1/2">
+             hello my message 
+              </div>
+              <div class="clear-both"> </div>
+               <div class="other  mt-1 max-w-1/2 flex flex-row justify-start">
+<div>  <img class="inline-block h-4 w-4 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80" alt="">  </div>  <div class="px-3 py-2 rounded-full bg-gray-200 ml-1" >  hello  </div>
+             
+              </div>
+
+
+              <div class="clear-both"> </div>
+
+        </div>
+        
+        </div>
+        <div class="bg-white px-4 h-16 w-full m-foot absolute bottom-0 shadow flex items-center justify-between">
+            <form class="w-full flex" id="messageForm"> 
+            <input type="text" id="messageInput"  autocomplete="off"  class="flex-1 bg-gray-100 rounded  text-base outline-none border-none text-gray-700 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Message...">
+
+            <div class="buttons pl-4 flex items-center"> 
+
+            <button type="button" class="mr-3" @click="emojiModel = !emojiModel"> 
+
+
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" class="h-6 w-6" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<g>
+	<g>
+		<path style="fill:#F59E0B" d="M437.019,74.981C388.668,26.629,324.38,0,256,0S123.332,26.629,74.981,74.981C26.628,123.332,0,187.62,0,256
+			s26.628,132.668,74.981,181.019C123.332,485.371,187.62,512,256,512s132.668-26.629,181.019-74.981
+			C485.372,388.668,512,324.38,512,256S485.372,123.332,437.019,74.981z M256,481.524c-124.354,0-225.524-101.17-225.524-225.524
+			S131.646,30.476,256,30.476S481.524,131.646,481.524,256S380.354,481.524,256,481.524z"/>
+	</g>
+</g>
+<g>
+	<g>
+		<path style="fill:#F59E0B" d="M200.622,188.396c-24.953-24.955-65.556-24.953-90.509,0c-5.951,5.95-5.951,15.599,0,21.55
+			c5.952,5.95,15.601,5.95,21.551,0c13.072-13.071,34.34-13.07,47.41,0c2.976,2.976,6.875,4.464,10.774,4.464
+			s7.8-1.488,10.774-4.464C206.573,203.995,206.573,194.347,200.622,188.396z"/>
+	</g>
+</g>
+<g>
+	<g>
+		<path style="fill:#F59E0B" d="M401.884,188.396c-24.953-24.953-65.556-24.955-90.509,0c-5.951,5.95-5.951,15.599,0,21.55
+			c5.952,5.95,15.601,5.95,21.551,0c13.07-13.071,34.338-13.072,47.41,0c2.976,2.976,6.875,4.464,10.774,4.464
+			s7.8-1.488,10.774-4.464C407.835,203.995,407.835,194.347,401.884,188.396z"/>
+	</g>
+</g>
+<g>
+	<g>
+		<path style="fill:#F59E0B" d="M391.111,267.175H120.889c-8.416,0-15.238,6.823-15.238,15.238c0,82.902,67.447,150.349,150.349,150.349
+			s150.349-67.447,150.349-150.349C406.349,273.997,399.527,267.175,391.111,267.175z M256,402.286
+			c-60.938,0-111.402-45.703-118.909-104.635H374.91C367.402,356.583,316.938,402.286,256,402.286z"/>
+	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+
+
+            </button>
+            <button id="send"> 
+            <?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" class="h-6 w-6 text-yellow-500"
+	 viewBox="0 0 512 512"  xml:space="preserve">
+<g>
+	<g>
+		<path fill="#F59E0B" d="M481.508,210.336L68.414,38.926c-17.403-7.222-37.064-4.045-51.309,8.287C2.86,59.547-3.098,78.551,1.558,96.808
+			L38.327,241h180.026c8.284,0,15.001,6.716,15.001,15.001c0,8.284-6.716,15.001-15.001,15.001H38.327L1.558,415.193
+			c-4.656,18.258,1.301,37.262,15.547,49.595c14.274,12.357,33.937,15.495,51.31,8.287l413.094-171.409
+			C500.317,293.862,512,276.364,512,256.001C512,235.638,500.317,218.139,481.508,210.336z"/>
+	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g>
+</g><g></g><g></g><g></g><g></g><g></g><g></g><g></g>
+</svg>
+             </button>
+             </div>
+             </form>
+         </div> 
+        </div>
+      </div>
+
+
+</div>
+
+<div class="sidebar-right flex-initial lg:w-1/4 pl-4">
+    <form action="" class="mt-5">
+        <input type="search" placeholder="Search..." id="search" name="search" class="w-full bg-white rounded-full bg-gray-100 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+    </form>
+
+<div class="md:flex flex-col md:flex-row md:min-h-screen w-full">
+ <div class="py-3">
+     <div class="text-2xl mt-14 p-3 rounded-full hover:bg-yellow-50 hover:bg-opacity-50 text-gray-500 text-center">
+         <i style="font-size: 38px;" class="zmdi zmdi-search"></i>
+     </div>
+     <div>
+         Search for users to start new Conversations.
+     </div>
+ </div>
+</div>
+</div>
+
+</div>
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/push.js/1.0.12/push.min.js"
+        integrity="sha512-DjIQO7OxE8rKQrBLpVCk60Zu0mcFfNx2nVduB96yk5HS/poYZAkYu5fxpwXj3iet91Ezqq2TNN6cJh9Y5NtfWg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+
+const socket = io({
+            auth: (cb) => {
+                cb({
+                    token: "{{token}}"
+                });
+            }
+        });
+
+
+    $(document).ready(function(){
+        $(".emoji span").click(function(){
+            $input = $("#messageInput");
+            $oldval = $input.val();
+            var emoji = $(this).html();
+            $input.val($oldval + emoji);
+        })
+    })
+
+    let cid = "{{userId}}";
+
+
+    function changeActiveUser(receiverid, conid = null,event){
+        window.conversationId = conid;
+        window.receiverId = receiverid;
+        // event.classList.add('active');
+        getReceiverInfo(receiverid);
+    $(".message_container").html('');
+    }
+
+
+function getReceiverInfo(receiverid){
+ $.ajax({
+     url : "/userinfo",
+     method : "POST",
+     data : {
+         receiver : receiverid
+     },
+     success : function(res){
+         if(res.success == 'true'){
+            $(".receiverName").text(res.data.name);
+            $(".receiverImage").attr('src',res.data.image);
+            $(".receiverActive").text('Active');
+         }//error do nth 
+         //receiverName
+         //receiverImage
+         //receiverActive
+     }
+ })
+}
+
+     $("#messageForm").submit(function (e) {
+            e.preventDefault();
+            let message = $("#message").val();
+            if(message == ''){
+                return;
+            }
+            socket.emit('sendmessage', {
+                sender: cid,
+                receiver: window.uid,
+                message: message
+            })
+            $(this).trigger('reset')
+            return;
+            $.ajax({
+                url: "/sendmessage",
+                method: "POST",
+                data: {
+                    sender: cid,
+                    receiver: window.uid,
+                    message: message
+                },
+                success: function (res) {
+                    loadMessages();
+                }
+            })
+        });
+
+
+        function loadMessages() {
+            $.ajax({
+                url: "/fetchmessage?receiver=" + window.receiverId + '&sender=' + cid,
+                method: "GET",
+                success: function (res) {
+                    console.log(res);
+                    let html = ``;
+
+                    for (i = 0; i < res.message.length; i++) {
+                        let msg = res.message[i];
+                        let reveiver = msg.receiver;
+                        let sender = cid;
+                        html += `
+                        <div class="singleMessage ${msg.sender == sender ? 'self bg-info text-white' : 'bg-light'} p-2" style="border-radius: 10px;">
+                                   ${msg.message}
+                                </div>
+                                <div class="clearfix"></div>
+                               
+                        `;
+                    }
+
+
+
+                    $(".message_wrapper").html(html);
+                }
+            })
+
+        }
+
+        //connect error or invalid auth token 
+        socket.on("connect_error", (err) => {
+            console.log(err.message)
+        });
+
+
+        socket.on('message', function (messages) {
+            //console.log(messages)
+            let html = ``;
+            for (i = 0; i < messages.length; i++) {
+                let msg = messages[i];
+                let reveiver = msg.receiver;
+                let sender = cid;
+                html += `
+                        <div class="singleMessage ${msg.sender._id == sender ? 'self bg-info text-white' : 'bg-light'} p-2" style="border-radius: 10px;">
+                         ${msg.message}
+                    </div>
+                   <div class="clearfix"></div>  
+                        `;
+            }
+
+            $(".message_wrapper").html(html);
+            scrollToView();
+            //send only notification to last message sender id is not equal to current logged in user id.. 
+            let lastMessageSenderId = messages[messages.length - 1].sender._id;
+            if (lastMessageSenderId != cid) {
+                sendMessageNotification({
+                    title: messages[messages.length - 1].sender.name,
+                    body: messages[messages.length - 1].message
+                });
+            }
+
+        })
+
+        //rita 613ae4a161b2f0241cc14b1e
+        //nir 6139718a02725906d624ebbf
+        //test2 613840a455d4787351a1235d
+
+        function scrollToView() {
+            let message_container = document.querySelector(".message_wrapper");
+            //message_container.scrollIntoView();
+            //message_container.scrollTop = message_container.clientHeight;
+            message_container.scrollTop = message_container.scrollHeight;
+        }
+
+        function sendMessageNotification(data) {
+            Push.create(data.title, {
+                body: data.body, //this should print "hello"
+                icon: '/icon.png',
+                onClick: function () {
+                    window.focus();
+                    this.close();
+                }
+            });
+        }
+</script>
+  </body>
+</html>

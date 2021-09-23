@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      <% if(valid == true){ %> Verification <% }else{ %> 404 not found <%} %>
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.1/tailwind.min.css"
+    />
+  </head>
+
+  <body
+    class="
+      flex flex-col
+      items-center
+      justify-center
+      w-screen
+      h-screen
+      bg-gray-200
+      text-gray-700
+    "
+  >
+    <% if(valid == true){ %>
+
+    <!-- Component Start -->
+    <h1 class="font-bold text-2xl">Verification :)</h1>
+    <form class="flex flex-col bg-white rounded shadow-lg p-12 mt-12">
+      <h3 class="font-bold text-2xl text-green-500">
+        Email Verified Successfully.
+      </h3>
+      <br />
+      <p class="text-gray-400">
+        Your account Email is Verified. you can now login with your account.
+      </p>
+      <br />
+      <a
+        href="/"
+        class="
+          px-4
+          py-2
+          rounded
+          bg-indigo-500
+          text-white
+          inline-block
+          font-semibold
+          text-center
+        "
+        >Login
+      </a>
+    </form>
+
+    <% }else {%>
+
+    <!-- Component Start -->
+    <h1 class="font-bold text-2xl">ERROR :(</h1>
+    <form
+      class="flex flex-col bg-white rounded shadow-lg p-12 mt-12 text-center"
+    >
+      <h3 class="font-bold text-6xl text-red-500">404</h3>
+      <h4 class="font-bold text-2xl mt-3">
+        The page is not found on the server.
+      </h4>
+
+      <p class="text-gray-400 mt-6">
+        We are sorry to say that the page you are trying to visit does not
+        exists.
+      </p>
+      <br />
+      <a
+        href="/"
+        class="
+          px-4
+          py-2
+          rounded
+          bg-indigo-500
+          text-white
+          inline-block
+          font-semibold
+          text-center
+        "
+        >Go back
+      </a>
+    </form>
+
+    <% } %>
+  </body>
+</html>

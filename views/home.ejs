@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#5358e8" />
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page Apado Chat</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="vendor/icons/css/material-design-iconic-font.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/vendor/emojipicker/src/jquery.lsxemojipicker.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+    <link
+      type="text/css"
+      href="https://uicdn.toast.com/tui-color-picker/v2.2.6/tui-color-picker.css"
+      rel="stylesheet"
+    />
+    <link
+      type="text/css"
+      href="/vendor/image-editor/dist/tui-image-editor.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="/vendor/photoviewer/dist/photoviewer.min.css"
+    />
+
+    <style>
+      @import url(http://fonts.googleapis.com/css?family=Noto+Sans);
+      * {
+        font-family: "Nunito", sans-serif;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .message_container .own {
+        max-width: 75%;
+        display: inline-block;
+        float: right;
+      }
+
+      .messages .other {
+        max-width: 75% !important;
+        display: inline-block;
+        float: left;
+      }
+
+      .breaker {
+        clear: both;
+      }
+
+      .conversations .active {
+        background: rgba(0, 0, 0, 0.1);
+      }
+      /* .message_container {
+        scroll-behavior: smooth;
+      } */
+      .message_container::-webkit-scrollbar {
+        display: none;
+      }
+      * img {
+        border: 3px solid blueviolet;
+      }
+
+      .lsx-emojipicker-container {
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .message_container img,
+      .photoviewer-modal img {
+        border: none !important;
+      }
+      .photoviewer-stage {
+        border: none;
+      }
+      .tui-image-editor-container .tui-image-editor-menu,
+      .tui-image-editor-container .tui-image-editor-help-menu {
+        background: #fff;
+      }
+      /* .tui-image-editor-header-logo {
+        display: none;
+      } */
+    </style>
+    <script>
+      var csrf_token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+      var im_open = JSON.parse("<%= im_open %>".toLowerCase());
+      function getSearchedUserInChat() {
+        if (im_open == true) {
+          let query = window.location.search;
+          let qp = new URLSearchParams(query);
+          let receiver = qp.get("r");
+          window.receiverId = receiver;
+          window.conversationId = [receiver, cid].sort().concat("_");
+          setTimeout(() => {
+            $(".message_nempty").show();
+            $(".message_empty").hide();
+            getReceiverInfo(window.receiverId);
+          }, 1000);
+        }
+      }
+    </script>
+  </head>
+
+  <body
+    style="max-height: 100vh; overflow: hidden"
+    x-data="{emojiModel : false}"
+  >
+    <div
+      class="
+        preloader
+        fixed
+        top-0
+        left-0
+        bg-white
+        flex
+        items-center
+        justify-center
+        w-full
+        h-full
+      "
+      style="z-index: 15555"
+    >
+      <div
+        class="
+          h-12
+          w-12
+          z-50
+          rounded-full
+          border-4 border-indigo-500
+          bg-white
+          m-5
+          animate-spin
+        "
+        style="border-top-color: rgb(255, 255, 255)"
+      ></div>
+    </div>
+
+    <!-- {{!-- nav bar first static --}} -->
+    <%- include('partials/nav', {u:user}); %> <%- include('partials/mobile',
+    {u:user, chats:m, userId: userId}); %>
+    <div
+      class="2xl:container mx-auto px-3 desktop hidden md:block"
+      x-data="{ messageDiv : true, emojiModel: false}"
+    >
+      <div class="flex">
+        <%- include('partials/sidebar_left', {chats:m, userId: userId}); %>
+        <div class="main flex-1 bg-white-300">
+          <%- include('partials/main', {chats:m, userId: userId}); %>
+        </div>
+
+        <%- include('partials/sidebar_right', {chats:m, userId: userId}); %>
+      </div>
+    </div>
+
+    <!-- {{!-- footer --}} -->
+
+    <!-- {{!-- script --}} -->
+
+    <script src="js/jquery.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/push.js/1.0.12/push.min.js"
+      integrity="sha512-DjIQO7OxE8rKQrBLpVCk60Zu0mcFfNx2nVduB96yk5HS/poYZAkYu5fxpwXj3iet91Ezqq2TNN6cJh9Y5NtfWg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="/vendor/emojipicker/src/jquery.lsxemojipicker.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.4.0/fabric.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://uicdn.toast.com/tui.code-snippet/v1.5.0/tui-code-snippet.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://uicdn.toast.com/tui-color-picker/v2.2.6/tui-color-picker.js"
+    ></script>
+    <!-- <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"
+  ></script> -->
+    <!-- <script
+      type="text/javascript"
+      src="/vendor/image-editor/dist/tui-image-editor.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/vendor/image-editor/examples/js/theme/white-theme.js"
+    ></script> -->
+    <!-- <script
+      type="text/javascript"
+      src="/vendor/image-editor/examples/js/theme/black-theme.js"
+    ></script>
+
+    -->
+    <script src="/vendor/photoviewer/dist/photoviewer.min.js"></script>
+
+    <script>
+      //sounds
+      let notification_sound = new Audio("/sounds/message_notification.mp3");
+
+      //window close ask permissions
+
+      //     headers: {
+      //   'CSRF-Token': csrf_token // <-- is the csrf token as a header
+      // },
+      //prevent back
+      history.pushState(null, document.title, location.href);
+      history.back();
+      history.forward();
+      window.onpopstate = function () {
+        history.go(1);
+      };
+
+      // document.addEventListener("DOMContentLoaded", function () {
+      //   window.onbeforeunload = function (e) {
+      //     var msg = "Are you sure to quit.";
+      //     if (typeof e == "undefined") {
+      //       e = window.event;
+      //     }
+      //     if (e) {
+      //       e.returnValue = msg;
+      //     }
+      //     return msg;
+      //   };
+      // });
+      window.ononline = function () {
+        alert("online");
+      };
+      window.onoffline = function () {
+        alert("offline");
+      };
+      function insertEmoji(device) {
+        $(`.${device} .picker`).lsxEmojiPicker({
+          closeOnSelect: false,
+          twemoji: false,
+          onSelect: function (emoji) {
+            $input = $(`.${device} #messageInput`);
+            $oldval = $input.val();
+            //convert hex to emoji
+            $input.val(
+              $oldval +
+                String.fromCodePoint(
+                  parseInt(emoji.value.replace("&#x", ""), 16)
+                )
+            );
+          },
+        });
+      }
+      function toggleEmojiPicker() {
+        if (window.innerWidth < 750) {
+          //mobile e moji picker
+          insertEmoji("mobile");
+        } else {
+          //emoji picker
+          insertEmoji("desktop");
+        }
+      }
+
+      window.addEventListener("resize", toggleEmojiPicker);
+      toggleEmojiPicker();
+      function convertDateToAgo(oldTime) {
+        let oldDate = new Date(oldTime).getTime();
+        let now = new Date().getTime();
+        let diff = now - oldDate;
+        let strings = {
+          years: "{time} years ago",
+          months: "{time} months ago",
+          days: "{time} days ago",
+          hours: "{time} hours ago",
+          minutes: "{time} minutes ago",
+          seconds: "{time} seconds ago",
+        };
+        var stringTime = "";
+        if (diff / 1000 <= 60) {
+          stringTime = strings.seconds.replace(
+            "{time}",
+            (diff / 1000).toFixed(0)
+          );
+        } else if (diff / (1000 * 60) <= 60) {
+          stringTime = strings.minutes.replace(
+            "{time}",
+            (diff / (1000 * 60)).toFixed(0)
+          );
+        } else if (diff / (1000 * 60 * 60) <= 24) {
+          stringTime = strings.hours.replace(
+            "{time}",
+            (diff / (1000 * 60 * 60)).toFixed(0)
+          );
+        } else if (diff / (1000 * 60 * 60 * 24) <= 31) {
+          stringTime = strings.days.replace(
+            "{time}",
+            (diff / (1000 * 60 * 60 * 24)).toFixed(0)
+          );
+        } else if (
+          diff / (1000 * 60 * 60 * 24) > 31 &&
+          diff / (1000 * 60 * 60 * 24) < 365
+        ) {
+          stringTime = strings.months.replace(
+            "{time}",
+            (diff / (1000 * 60 * 60 * 24 * 31)).toFixed(0)
+          );
+        } else if (diff / (1000 * 60 * 60 * 24 * 31) > 12) {
+          stringTime = strings.years.replace(
+            "{time}",
+            (diff / (1000 * 60 * 60 * 24 * 31 * 12)).toFixed(1)
+          );
+        } else {
+          stringTime = diff / (1000 * 60 * 60 * 24 * 31 * 12);
+        }
+
+        return stringTime;
+        // return diff / (60 * 60 * 1000 * 24);
+      }
+
+      // console.log(convertDateToAgo(oldTime));
+
+      const socket = io({
+        auth: (cb) => {
+          cb({
+            token: "<%=token %>",
+          });
+        },
+      });
+      var chatLists = "<%=  m.length  %>";
+
+      //functin markasread
+      function markAsRead(conid) {
+        socket.emit("markAsRead", {
+          userId: cid,
+          conversationId: conid,
+        });
+      }
+
+      //liten for read success event ....
+      socket.on("messageSeenSuccessfully", (conid) => {
+        //do something now ...
+        $(".desktop ." + conid + " .unseen").text("");
+        $(".mobile ." + conid + " .unseen").text("");
+        //update dom marked as read successully.
+      });
+
+      $(document).ready(function () {
+        //hide pre loaders.
+        setTimeout(() => {
+          $(".preloader").hide();
+        }, 1200);
+
+        getSearchedUserInChat();
+        checkChatLists();
+
+        getReceiverInfo(window.receiverId);
+        loadMessages();
+      });
+
+      function checkChatLists() {
+        if (parseInt(chatLists) > 0) {
+          $(".u_details").show();
+          $(".message_nempty").show();
+          $(".u_detailsn").hide();
+          $(".message_empty").hide();
+        } else {
+          $(".u_details").hide();
+          $(".message_nempty").hide();
+          $(".u_detailsn").show();
+          $(".message_empty").show();
+        }
+      }
+
+      let cid = "<%= userId %>";
+
+      function changeActiveUser(receiverid, conid = null, event) {
+        window.conversationId = conid;
+        window.receiverId = receiverid;
+        markAsRead(conid); //mark as read when there is any unread messages.
+        $(".message_container")
+          .html(`    <div class="flex items-center justify-center my-5">
+              <div
+                class="
+                  h-8
+                  w-8
+                  rounded-full
+                  border-4 border-indigo-500
+                  bg-white
+                  m-5
+                  animate-spin
+                "
+                style="border-top-color: rgb(255, 255, 255)"
+              ></div>
+            </div>`);
+        getReceiverInfo(receiverid);
+        checkChatLists();
+        // $(".message_container").html('');
+      }
+
+      function getReceiverInfo(receiverid) {
+        $.ajax({
+          url: "/userinfo",
+          method: "POST",
+          headers: {
+            "CSRF-Token": csrf_token,
+          },
+          data: {
+            receiver: receiverid,
+          },
+          success: function (res) {
+            if (res.success == true) {
+              $(".receiverName").text(res.data.name);
+              $(".receiverImage").attr("src", res.data.picture);
+              let on = res.data.online ? true : false;
+
+              let h = ` `;
+              if (on == false) {
+                h += "Last seen : ";
+                var last_active = res.data.last_active;
+
+                let activeDate = new Date(
+                  last_active != null && last_active != ""
+                    ? parseInt(last_active)
+                    : "2021 04 04"
+                );
+
+                let today = new Date().getDay();
+                if (today == activeDate.getDay()) {
+                  h += `${convertDateToAgo(parseInt(last_active))}`;
+                } else {
+                  h += ` ${activeDate.toDateString().substring(0, 10)} `;
+                }
+              } else {
+                h += "Online";
+              }
+              $(".receiverActive").text(h);
+              loadMessages();
+            } //error do nth
+            //receiverName
+            //receiverImage
+            //receiverActive
+          },
+        });
+      }
+
+      $(".desktop #messageForm").submit(function (e) {
+        e.preventDefault();
+        handleSubmit($(this));
+      });
+      $(".mobile #messageForm").submit(function (e) {
+        e.preventDefault();
+        handleSubmit($(this));
+      });
+
+      function handleSubmit(t) {
+        let message = t.find("input[type='text']").val();
+        if (message == null || message == "") {
+          return;
+        }
+        socket.emit("sendmessage", {
+          sender: cid,
+          receiver: window.receiverId,
+          message: message,
+        });
+        t.trigger("reset");
+        return;
+        $.ajax({
+          url: "/sendmessage",
+          method: "POST",
+          headers: {
+            "CSRF-Token": csrf_token,
+          },
+          data: {
+            sender: cid,
+            receiver: window.uid,
+            message: message,
+          },
+
+          success: function (res) {
+            loadMessages();
+          },
+        });
+      }
+
+      function loadMessages(ajax = null) {
+        if (ajax != null) {
+        }
+        $.ajax({
+          url: "/fetchmessage",
+          method: "POST",
+          headers: {
+            "CSRF-Token": csrf_token,
+          },
+          data: {
+            receiver: window.receiverId,
+            sender: cid,
+          },
+          beforeSend: function () {
+            $(".message_container")
+              .html(`    <div class="flex items-center justify-center my-5">
+              <div
+                class="
+                  h-8
+                  w-8
+                  rounded-full
+                  border-4 border-indigo-500
+                  bg-white
+                  m-5
+                  animate-spin
+                "
+                style="border-top-color: rgb(255, 255, 255)"
+              ></div>
+            </div>`);
+          },
+          success: function (res) {
+            html = loopMessages(res.messages);
+            $(".message_container").html(html);
+            scrollToView();
+            preventImg();
+            loadMessageAttachments(res.messages)
+            photoViewerInit(".message_container");
+          },
+        });
+      }
+
+      //connect error or invalid auth token
+      socket.on("connect_error", (err) => {
+        console.log(err.message);
+        window.location.replace("/"); //out log out
+      });
+
+      function loopMessages(messages) {
+       
+        let html = ``;
+        let j = 0;
+        let sender = cid;
+        for (i = 0; i < messages.length; i++) {
+          let msg = messages[i];
+          let reveiver = msg.receiver;
+
+          if (msg.sender._id == sender) {
+            if (msg.attachment != null && msg.attachment != "") {
+              html += ` <div class="own px-3 py-2 text-white rounded-lg mt-1 bg-white ">
+                     <a data-index="${j}" data-gallery="messages" data-group="a" href="${msg.attachment}"> <img src="${msg.attachment}" class="max-w-48 rounded-md shadow max-h-32" /> </a>
+                    </div>
+                    <div class="clear-both"> </div>`;
+              j++;
+              
+            } else {
+              html += ` <div style="border-radius: 25px;" class="own px-3 break-words py-2 text-white  mt-1 bg-indigo-500 ">
+                       ${msg.message}
+                    </div>
+                    <div class="clear-both"> </div>`;
+            }
+          } else {
+            if (msg.attachment != null && msg.attachment != "") {
+              html += `<div class="other  mt-1  flex flex-row justify-start">
+                    <div> </div>
+                    <div class="px-3 py-2 rounded-lg  ml-1">   <a data-index="${j}" data-gallery="messages" data-group="a" href="${msg.attachment}"> <img src="${msg.attachment}" class="max-w-48 rounded-md shadow max-h-32" /> </a> </div>
+
+                </div> <div class="clear-both"> </div>`;
+              j++;
+            } else {
+              html += `<div class="other  mt-1  flex flex-row justify-start">
+                    
+                    <div style="word-break: break-all; max-width: 75%; border-radius:25px;" class="px-3 py-2 break-words  bg-gray-200 ml-1 " > ${msg.message} </div>
+
+                </div> <div class="clear-both"> </div>`;
+            }
+          }
+        }
+        // message seen or unseen ???
+        var l = messages[messages.length - 1];
+        if (l && l.sender._id == sender) {
+          if (l.seen == true) {
+            html += `<div class="own px-3 inline-block text-gray-400 rounded-lg mt-1 text-xs  ">
+                      seen
+                    </div>
+                    <div class="clear-both"> </div>`;
+          }
+        }
+        return html;
+      }
+
+      function loadMessageAttachments(messages){
+        $(".attachments").html('');
+        let attachments = [];
+        messages.map(item=>{
+          if(item.attachment != null && item.attachment != ''){
+            attachments.push(item);
+          }
+        })
+
+        let attachHtml = ``;
+        attachments.map(item=>{
+          attachHtml += `
+          <div class="h-20 cursor-pointer w-20 bg-gray-200 mr-1 mb-1 flex items-center justify-center"> <img src="${item.attachment}" class="w-full max-w-full max-h-full" alt="null" />  </div>
+          `;
+        })
+        $(".attachments").html(attachHtml);
+      }
+
+
+      socket.on("message", function (messages) {
+        //console.log(messages)
+
+        html = loopMessages(messages);
+        //update notification count for unread messages.
+        //check if the actual receiver/sender is in main view/frame
+        var lastMessage = messages[messages.length - 1];
+        var r = lastMessage.receiver._id;
+        var s = lastMessage.sender._id;
+        var conversationId = lastMessage.conversationId;
+
+          updateCount();
+
+        function updateCount() {
+          let target = $(`.${conversationId}`);
+          let old = target.find(".unseen").text().trim();
+        
+          var oldc =  old.trim().toString();
+         
+          if(s != cid){
+          v =  oldc.length > 1 ? parseInt(oldc.slice(-1))+1 :  (0 + 1);
+        
+          target.find(".unseen").html(v);
+          }
+
+          target.find(".mssg").text(lastMessage.message);
+          if (target != "undefined" && target != null) {
+          }
+        }
+
+        if (s == cid) {
+          $(".message_container").html(html);
+        }
+        if (lastMessage.conversationId == window.conversationId) {
+          $(".message_container").html(html);
+        }
+
+        scrollToView();
+        preventImg();
+        loadMessageAttachments(messages)
+        photoViewerInit(".message_container");
+        //send only notification to last message sender id is not equal to current logged in user id..
+
+        let lastMessageSenderId = lastMessage.sender._id;
+        let isAvailable = $("body").find(
+          `.${lastMessage.conversationId}`
+        ).length;
+        if (lastMessageSenderId != cid ) {
+          sendMessageNotification({
+            title: lastMessage.sender.name,
+            body: lastMessage.message,
+          });
+        }
+      });
+
+      //rita 613ae4a161b2f0241cc14b1e
+      //nir 6139718a02725906d624ebbf
+      //test2 613840a455d4787351a1235d
+
+      function scrollToView() {
+        let dmessage_container = document.querySelector(
+          ".desktop .message_container"
+        );
+        let mmessage_container = document.querySelector(
+          ".mobile .message_container"
+        );
+        //message_container.scrollIntoView();
+        //message_container.scrollTop = message_container.clientHeight;
+        setTimeout(() => {
+          dmessage_container.scrollTop = dmessage_container.scrollHeight + 1000;
+          mmessage_container.scrollTop = mmessage_container.scrollHeight + 1000;
+        }, 100);
+      }
+
+      function sendMessageNotification(data) {
+        notification_sound.currentTime = 0;
+        // notification_sound.play();
+        Push.create(data.title, {
+          body: data.body, //this should print "hello"
+          icon: "/icon.png",
+          onClick: function () {
+            window.focus();
+            this.close();
+          },
+        });
+      }
+      //search focus redirect to searach page
+      $("#s").on("focus", function () {
+        window.location.href = "/search";
+      });
+
+      //right click prevent i
+      function preventImg() {
+        $(".message_container img").on("contextmenu", function () {
+          return false;
+        });
+      }
+
+      //photo viewer function init
+      function photoViewerInit(container) {
+        // initialize manually with an Array from a list of links
+        $("[data-gallery=messages]").on("click", function (e) {
+          e.preventDefault();
+
+          var items = [],
+            options = {
+              index: $(this).attr("data-index"),
+            };
+          
+
+          $("[data-gallery=messages]").each(function () {
+            1;
+            let src = $(this).attr("href");
+            items.push({
+              src: src,
+            });
+          });
+
+          new PhotoViewer(items, options);
+          $(".photoviewer-header").addClass("bg-indigo-100");
+        });
+      }
+    
+
+
+      $("#desktop-file-upload").on('change', function(){
+        var file = document.getElementById('desktop-file-upload').files[0];
+        if(file && file.size < 2097152){
+          var reader = new FileReader();
+
+        reader.onload = function(){
+        
+          $(".desktop .file-preview").attr('src', this.result);
+          $(".desktop .upload-btn").removeClass('hidden');
+          
+        }
+        reader.readAsDataURL(file);
+        }else{
+          alert('file not choosen or image size is greater then 2 MB. choose smaller files or valid file type.');
+          $(".desktop .file-preview").attr('src', null);
+          $(".desktop .upload-btn").addClass('hidden');
+        }
+      });
+
+    //file upload for desktop
+    $(".desktop-upload-btn").click(function(){
+      let file = document.getElementById("desktop-file-upload").files[0];
+      var reader = new FileReader();
+      let base64 = null;
+
+      $(".message_container").append(`<div class="own px-3  py-1 text-white  mt-1 bg-yellow-500 ">
+                      Uploading...
+                    </div>
+                    <div class="clear-both"> </div>`);
+                    scrollToView()
+reader.onload = function(){
+base64 = this.result;
+//after read successfully. 
+socket.emit('sendImage', {
+  imageData : base64, _csrf : csrf_token, userId : cid, receiver : window.receiverId
+});
+$(".desktop .file-preview").attr('src', null);
+          $(".desktop .upload-btn").addClass('hidden');
+}
+reader.readAsDataURL(file);
+      
+    });
+
+
+    //mobile 
+    $("#mobile-file-upload").on('change', function(){
+        var file = document.getElementById('mobile-file-upload').files[0];
+        if(file && file.size < 2097152){
+          var reader = new FileReader();
+
+        reader.onload = function(){
+        
+          $(".mobile .file-preview").attr('src', this.result);
+          $(".mobile .upload-btn").removeClass('hidden');
+          
+        }
+        reader.readAsDataURL(file);
+        }else{
+          alert('file not choosen or image size is greater then 2 MB. choose smaller files or valid file type.');
+          $(".mobile .file-preview").attr('src', null);
+          $(".mobile .upload-btn").addClass('hidden');
+        }
+      });
+
+    //file upload for mobile
+    $(".mobile-upload-btn").click(function(){
+      let file = document.getElementById("mobile-file-upload").files[0];
+      var reader = new FileReader();
+      let base64 = null;
+
+      $(".message_container").append(`<div class="own px-3  py-1 text-white  mt-1 bg-yellow-500 ">
+                      Uploading...
+                    </div>
+                    <div class="clear-both"> </div>`);
+                    scrollToView()
+reader.onload = function(){
+base64 = this.result;
+//after read successfully. 
+socket.emit('sendImage', {
+  imageData : base64, _csrf : csrf_token, userId : cid, receiver : window.receiverId
+});
+$(".mobile .file-preview").attr('src', null);
+          $(".mobile .upload-btn").addClass('hidden');
+  
+}
+reader.readAsDataURL(file);
+      
+    });
+
+
+    
+    
+    </script>
+  </body>
+</html>

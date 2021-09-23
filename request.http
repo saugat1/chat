@@ -1,0 +1,12 @@
+@baseUrl=http://localhost:8000
+@apiUrl=http://localhost:8000/api/v1
+
+POST   {{apiUrl}}/login
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMzg0MGE0NTVkNDc4NzM1MWExMjM1ZCIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE2MzEyODUzODcsImV4cCI6MTYzMTI5OTc4N30.PsiqUxUmncIiC4OOoJHbm-SzieV8Qg8tzgAKQn404j8
+
+{
+    "email" : "test@gmail.com",
+    "password" : "admin234"
+}
